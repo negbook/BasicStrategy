@@ -186,25 +186,27 @@ namespace Main
             int longCount = TradingUtils.LongPositionsCount;
             int shortCount = TradingUtils.ShortPositionsCount;
             
+            // 檢查是否有平倉條件
+            if (longCount > 0 || shortCount > 0)
+            {
+                // 如果有倉位，檢查是否應該平倉
+                if (ShouldClosePosition(history))
+                {
+                    StrategyClosePosition();
+                }
+            }
             // 檢查是否有開倉條件
-            if (longCount == 0 && shortCount == 0)
+            else if (longCount == 0 && shortCount == 0)
             {
                 // 如果沒有倉位，檢查是否應該開倉
                 Side? side = ShouldOpenPosition(history);
                 if (side.HasValue)
                 {
-                    OpenPosition(side.Value);
+                    StrategyOpenPosition(side.Value);
                 }
             }
-            // 檢查是否有平倉條件
-            else if (longCount > 0 || shortCount > 0)
-            {
-                // 如果有倉位，檢查是否應該平倉
-                if (ShouldClosePosition(history))
-                {
-                    CloseAllPositions();
-                }
-            }
+
+            
         }
 
         /// <summary>
@@ -290,7 +292,7 @@ namespace Main
         /// 開倉操作
         /// </summary>
         /// <param name="side">開倉方向</param>
-        private void OpenPosition(Side side)
+        private void StrategyOpenPosition(Side side)
         {
             // 設置等待狀態
             this.waitOpenPosition = true;
@@ -343,7 +345,7 @@ namespace Main
         /// <summary>
         /// 關閉所有倉位
         /// </summary>
-        private void CloseAllPositions()
+        private void StrategyClosePosition()
         {
             // 獲取所有當前倉位
             var positions = TradingUtils.GetPositions(this.CurrentAccount, this.CurrentSymbol);
